@@ -1,0 +1,130 @@
+---
+resources:
+- name: pal-tracker
+  type: git
+  source:
+    uri: {{github-repository}}
+    branch: my-work
+    private_key: {{github-private-key}}
+
+- name: version
+  type: semver
+  source:
+    bucket: {{aws-bucket}}
+    key: pal-tracker/version
+    access_key_id: {{aws-access-key-id}}
+    secret_access_key: {{aws-secret-access-key}}
+
+- name: allocations-artifacts
+  type: s3
+  source:
+    bucket: {{aws-bucket}}
+    regexp: pal-tracker/allocations-server-(.*).tgz
+    access_key_id: {{aws-access-key-id}}
+    secret_access_key: {{aws-secret-access-key}}
+
+- name: backlog-artifacts
+  type: s3
+  source:
+    bucket: {{aws-bucket}}
+    regexp: pal-tracker/backlog-server-(.*).tgz
+    access_key_id: {{aws-access-key-id}}
+    secret_access_key: {{aws-secret-access-key}}
+
+- name: registration-artifacts
+  type: s3
+  source:
+    bucket: {{aws-bucket}}
+    regexp: pal-tracker/registration-server-(.*).tgz
+    access_key_id: {{aws-access-key-id}}
+    secret_access_key: {{aws-secret-access-key}}
+
+- name: timesheets-artifacts
+  type: s3
+  source:
+    bucket: {{aws-bucket}}
+    regexp: pal-tracker/timesheets-server-(.*).tgz
+    access_key_id: {{aws-access-key-id}}
+    secret_access_key: {{aws-secret-access-key}}
+
+- name: cf
+  type: cf
+  source:
+    api: {{cf-api-url}}
+    username: {{cf-username}}
+    password: {{cf-password}}
+    organization: {{cf-org}}
+    space: sandbox
+
+jobs:
+- name: build
+  plan:
+  - get: pal-tracker
+    trigger: true
+  - get: version
+    params: {bump: patch}
+  - task: build and test
+    file: pal-tracker/CI/build.yml
+  - put: allocations-artifacts
+    params:
+      file: build-output/allocations-server-*.tgz
+  - put: backlog-artifacts
+    params:
+      file: build-output/backlog-server-*.tgz
+  - put: registration-artifacts
+    params:
+      file: build-output/registration-server-*.tgz
+  - put: timesheets-artifacts
+    params:
+      file: build-output/timesheets-server-*.tgz
+  - put: version
+    params:
+      file: version/number
+
+- name: deploy-allocations
+  plan:
+  - get: allocations-artifacts
+    params: {unpack: true}
+    trigger: true
+    passed: [build]
+  - put: cf
+    params:
+      manifest: allocations-artifacts/manifest-allocations.yml
+      path: allocations-artifacts
+      current_app_name: tracker-allocations
+
+- name: deploy-backlog
+  plan:
+  - get: backlog-artifacts
+    params: {unpack: true}
+    trigger: true
+    passed: [build]
+  - put: cf
+    params:
+      manifest: backlog-artifacts/manifest-backlog.yml
+      path: backlog-artifacts
+      current_app_name: tracker-backlog
+
+- name: deploy-registration
+  plan:
+  - get: registration-artifacts
+    params: {unpack: true}
+    trigger: true
+    passed: [build]
+  - put: cf
+    params:
+      manifest: registration-artifacts/manifest-registration.yml
+      path: registration-artifacts
+      current_app_name: tracker-registration
+
+- name: deploy-timesheets
+  plan:
+  - get: timesheets-artifacts
+    params: {unpack: true}
+    trigger: true
+    passed: [build]
+  - put: cf
+    params:
+      manifest: timesheets-artifacts/manifest-timesheets.yml
+      path: timesheets-artifacts
+      current_app_name: tracker-timesheets

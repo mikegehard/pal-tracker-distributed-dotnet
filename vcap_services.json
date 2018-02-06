@@ -1,0 +1,22 @@
+{
+    "p-mysql": [
+        {
+            "credentials": {
+                "hostname": "localhost",
+                "port": 3306,
+                "name": "<<DB_NAME>>",
+                "username": "tracker",
+                "password": "password",
+                "uri": "mysql://tracker:password@localhost:3306/<<DB_NAME>>?reconnect=true",
+                "jdbcUrl": "jdbc:mysql://localhost:3306/<<DB_NAME>>?user=tracker&password=password"
+            },
+            "syslog_drain_url": null,
+            "volume_mounts": [],
+            "label": "p-mysql",
+            "provider": null,
+            "plan": "100mb",
+            "name": "tracker-database",
+            "tags": ["mysql", "relational"]
+        }
+    ]
+}

@@ -1,0 +1,62 @@
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: microsoft/dotnet
+    tag: '2-sdk'
+    
+inputs:
+  - name: pal-tracker
+  - name: version
+
+outputs:
+  - name: build-output
+
+run:
+  path: bash
+  args:
+  - -exc
+  - |
+  
+    set -e
+  
+    export DEBIAN_FRONTEND="noninteractive"
+    export OUTPUT_DIR=$(realpath .)/build-output
+    export VERSION=$(cat version/number)
+
+    # install and start mysql
+    apt-get update
+    apt-get -y install mysql-server
+    service mysql start
+    
+    # install flyway
+    curl https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/4.2.0/flyway-commandline-4.2.0-linux-x64.tar.gz | tar xvz
+    PATH=$PATH:$(realpath flyway-*)
+        
+    cd pal-tracker
+    
+    # migrate test dbs and run tests
+    mysql -uroot < Databases/create_databases.sql
+    ./migrate-local.sh test 
+    ./test.sh
+        
+    # compile apps 
+    (cd Applications/AllocationsServer && dotnet publish --output $OUTPUT_DIR/allocations/Applications/AllocationsServer/bin/Release/netcoreapp2.0/publish)
+    (cd Applications/BacklogServer && dotnet publish --output $OUTPUT_DIR/backlog/Applications/BacklogServer/bin/Release/netcoreapp2.0/publish)
+    (cd Applications/RegistrationServer && dotnet publish --output $OUTPUT_DIR/registration/Applications/RegistrationServer/bin/Release/netcoreapp2.0/publish)
+    (cd Applications/TimesheetsServer && dotnet publish --output $OUTPUT_DIR/timesheets/Applications/TimesheetsServer/bin/Release/netcoreapp2.0/publish)
+
+    # bundle cf manifest with app
+    cp manifest-allocations.yml $OUTPUT_DIR/allocations/
+    cp manifest-backlog.yml $OUTPUT_DIR/backlog/
+    cp manifest-registration.yml $OUTPUT_DIR/registration/
+    cp manifest-timesheets.yml $OUTPUT_DIR/timesheets/
+
+    # build artifacts
+    tar -cvzf $OUTPUT_DIR/allocations-server-$VERSION.tgz --directory=$OUTPUT_DIR/allocations --remove-files . 
+    tar -cvzf $OUTPUT_DIR/backlog-server-$VERSION.tgz --directory=$OUTPUT_DIR/backlog --remove-files .
+    tar -cvzf $OUTPUT_DIR/registration-server-$VERSION.tgz --directory=$OUTPUT_DIR/registration --remove-files .
+    tar -cvzf $OUTPUT_DIR/timesheets-server-$VERSION.tgz --directory=$OUTPUT_DIR/timesheets --remove-files .
+
+    service mysql stop
