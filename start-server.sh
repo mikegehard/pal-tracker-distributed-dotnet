@@ -29,7 +29,6 @@ function start_server() {
     local vcap_services=$(cat vcap_services.json | sed -e "s/<<DB_NAME>>/${dbName}/")
     
     export Logging__LogLevel__Default=Debug
-    export REGISTRATION_SERVER_ENDPOINT=http://localhost:8883/
     export VCAP_SERVICES=${vcap_services}
     
     dotnet run --project "$projectPath" --urls "http://*:${port}"
