@@ -4,6 +4,7 @@ using System.Net.Http;
 using Allocations;
 using DatabaseSupport;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using TestSupport;
 using Xunit;
 using static TestSupport.TestServers;
@@ -37,7 +38,7 @@ namespace AllocationsTest
 
             var controller =
                 new AllocationController(new AllocationDataGateway(new DatabaseTemplate(DataSourceConfig)),
-                    new ProjectClient(_client));
+                    new ProjectClient(_client,  new LoggerFactory().CreateLogger<ProjectClient>()));
 
             var value = controller.Post(new AllocationInfo(-1, 55432, 4765, DateTime.Parse("2014-05-16"),
                 DateTime.Parse("2014-05-26"), ""));
