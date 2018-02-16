@@ -1,8 +1,10 @@
 ﻿using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Accounts
 {
+    [Authorize(Policy = "pal-tracker")]
     [Route("accounts"), Produces("application/json")]
     public class AccountController : Controller
     {

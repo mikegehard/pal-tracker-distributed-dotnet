@@ -30,6 +30,7 @@ function start_server() {
     
     export Logging__LogLevel__Default=Debug
     export VCAP_SERVICES=${vcap_services}
+    export DISABLE_AUTH=true
     
     dotnet run --project "$projectPath" --urls "http://*:${port}"
 }

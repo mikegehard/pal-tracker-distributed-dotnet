@@ -9,6 +9,7 @@
     <ProjectReference Include="../../Components/Allocations/Allocations.csproj" />
     <ProjectReference Include="../../Components/DatabaseSupport/DatabaseSupport.csproj" />
     <ProjectReference Include="../../Components/DefaultRoute/DefaultRoute.csproj" />
+    <ProjectReference Include="../../Components/AuthDisabler/AuthDisabler.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
@@ -17,5 +18,6 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.0.0" />
     <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
     <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundryCore" Version="2.0.0" />
+    <PackageReference Include="Steeltoe.Security.Authentication.CloudFoundryCore" Version="2.0.0" />
   </ItemGroup>
 </Project>

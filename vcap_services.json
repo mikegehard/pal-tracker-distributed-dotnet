@@ -1,4 +1,20 @@
 {
+    "p-identity": [
+        {
+            "credentials": {
+                "auth_domain": "http://localhost:8080/uaa",
+                "client_id": "app",
+                "client_secret": "appclientsecret"
+            },
+            "label": "p-identity",
+            "name": "tracker-sso",
+            "plan": "p-identity",
+            "provider": null,
+            "syslog_drain_url": null,
+            "tags": [],
+            "volume_mounts": []
+        }
+    ],
     "p-mysql": [
         {
             "credentials": {

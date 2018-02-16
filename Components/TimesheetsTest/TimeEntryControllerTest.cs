@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading.Tasks;
 using DatabaseSupport;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -39,7 +40,8 @@ namespace TimesheetsTest
 
             var controller =
                 new TimeEntryController(new TimeEntryDataGateway(new DatabaseTemplate(DataSourceConfig)),
-                    new ProjectClient(_client, new LoggerFactory().CreateLogger<ProjectClient>()));
+                    new ProjectClient(_client, new LoggerFactory().CreateLogger<ProjectClient>(),
+                        () => Task.FromResult("anAccessToken")));
 
             var value = controller.Post(new TimeEntryInfo(-1, 55432, 4765, DateTime.Parse("2015-05-17"), 8, ""));
             var actual = (TimeEntryInfo) ((ObjectResult) value).Value;
@@ -59,7 +61,8 @@ namespace TimesheetsTest
 
             var controller =
                 new TimeEntryController(new TimeEntryDataGateway(new DatabaseTemplate(DataSourceConfig)),
-                    new ProjectClient(_client, new LoggerFactory().CreateLogger<ProjectClient>()));
+                    new ProjectClient(_client, new LoggerFactory().CreateLogger<ProjectClient>(),
+                        () => Task.FromResult("anAccessToken")));
             var result = controller.Get(4765);
 
             // todo...

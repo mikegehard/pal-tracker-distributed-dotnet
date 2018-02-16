@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Allocations;
 using DatabaseSupport;
 using Microsoft.AspNetCore.Mvc;
@@ -38,7 +39,8 @@ namespace AllocationsTest
 
             var controller =
                 new AllocationController(new AllocationDataGateway(new DatabaseTemplate(DataSourceConfig)),
-                    new ProjectClient(_client,  new LoggerFactory().CreateLogger<ProjectClient>()));
+                    new ProjectClient(_client, new LoggerFactory().CreateLogger<ProjectClient>(),
+                        () => Task.FromResult("anAccessToken")));
 
             var value = controller.Post(new AllocationInfo(-1, 55432, 4765, DateTime.Parse("2014-05-16"),
                 DateTime.Parse("2014-05-26"), ""));
